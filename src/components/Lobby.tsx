@@ -61,23 +61,31 @@ export default function Lobby({ onSelectGame, balance }: LobbyProps) {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.05, y: -5 }}
+            whileHover={{ 
+              rotateX: 10, 
+              rotateY: 10,
+              z: 50,
+              scale: 1.05 
+            }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSelectGame(game.id)}
-            className={`relative group h-96 rounded-3xl overflow-hidden bg-gradient-to-br ${game.color} p-1 ${game.shadow} shadow-2xl flex flex-col items-center justify-center text-center`}
+            className={`relative group h-96 rounded-3xl overflow-hidden bg-gradient-to-br ${game.color} p-1 ${game.shadow} shadow-2xl flex flex-col items-center justify-center text-center preserve-3d`}
           >
             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-0" />
-            <div className="relative z-10 p-8 flex flex-col items-center">
-              <div className={`mb-6 ${game.accent} group-hover:scale-110 transition-transform duration-500`}>
+            <div className="relative z-10 p-8 flex flex-col items-center preserve-3d">
+              <motion.div 
+                whileHover={{ translateZ: 40 }}
+                className={`mb-6 ${game.accent} group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]`}
+              >
                 {game.icon}
-              </div>
-              <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2">
+              </motion.div>
+              <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 [transform:translateZ(20px)]">
                 {game.name}
               </h3>
-              <p className="text-white/70 font-medium mb-8">
+              <p className="text-white/70 font-medium mb-8 [transform:translateZ(10px)]">
                 {game.description}
               </p>
-              <div className="px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white font-bold uppercase tracking-widest text-xs">
+              <div className="px-6 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white font-bold uppercase tracking-widest text-xs [transform:translateZ(30px)]">
                 Play Now
               </div>
             </div>

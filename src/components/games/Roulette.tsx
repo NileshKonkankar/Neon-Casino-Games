@@ -72,35 +72,60 @@ export default function Roulette({ balance, onUpdateBalance }: RouletteProps) {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col items-center justify-center max-w-6xl mx-auto w-full">
-      <div className="w-full bg-white/5 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col lg:flex-row gap-12 items-center">
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-rose-500/10 blur-[100px] rounded-full" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-pink-500/10 blur-[100px] rounded-full" />
-
+    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col items-center justify-center max-w-6xl mx-auto w-full [perspective:2000px]">
+      <div className="w-full bg-zinc-900 border-x-8 border-t-8 border-b-[20px] border-zinc-800 rounded-[60px] p-8 backdrop-blur-xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden flex flex-col lg:flex-row gap-12 items-center [transform:rotateX(10deg)]">
+        {/* Machine Accents */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        
         {/* Wheel Section */}
-        <div className="flex-1 flex flex-col items-center gap-8">
-          <div className="relative w-64 h-64 sm:w-80 sm:h-80">
+        <div className="flex-1 flex flex-col items-center gap-8 [perspective:1000px]">
+          <div className="relative w-64 h-64 sm:w-96 sm:h-96 [transform:rotateX(45deg)]">
+            {/* Outer Wood Ring */}
+            <div className="absolute inset-[-20px] rounded-full border-[24px] border-[#3d2b1f] shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-90" />
+            
             <motion.div
               animate={{ rotate: rotation }}
               transition={{ duration: 4, ease: [0.1, 0, 0.1, 1] }}
-              className="w-full h-full rounded-full border-8 border-white/10 relative overflow-hidden bg-zinc-900 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+              className="w-full h-full rounded-full border-[12px] border-zinc-800 relative overflow-hidden bg-zinc-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] preserve-3d"
             >
+              {/* Inner Metallic Ring */}
+              <div className="absolute inset-0 rounded-full border-[20px] border-amber-600/10" />
+              
               {NUMBERS.map((n) => (
                 <div
                   key={n}
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-full origin-bottom flex flex-col items-center pt-2"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-full origin-bottom flex flex-col items-center pt-2"
                   style={{ transform: `translateX(-50%) rotate(${n * (360 / 37)}deg)` }}
                 >
-                  <div className={`text-[10px] font-black ${n === 0 ? 'text-emerald-400' : RED_NUMBERS.includes(n) ? 'text-rose-500' : 'text-white/40'}`}>
+                  <div className={`text-xs font-black px-1 rounded-sm shadow-sm ${n === 0 ? 'bg-emerald-600 text-white' : RED_NUMBERS.includes(n) ? 'bg-rose-600 text-white' : 'bg-zinc-800 text-white'}`}>
                     {n}
                   </div>
                 </div>
               ))}
-              <div className="absolute inset-4 rounded-full border-4 border-white/5 bg-zinc-800 flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-full shadow-[0_0_15px_white]" />
+              
+              {/* Center Hub (Metallic) */}
+              <div className="absolute inset-12 rounded-full border-8 border-zinc-700 bg-gradient-to-br from-zinc-400 via-zinc-800 to-zinc-900 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.5)] border-2 border-white/20 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full opacity-50" />
+                </div>
               </div>
+
+              {/* Ball Animation */}
+              {isSpinning && (
+                <motion.div
+                  animate={{ rotate: -rotation * 2 }}
+                  transition={{ duration: 4, ease: [0.1, 0, 0.1, 1] }}
+                  className="absolute inset-0 pointer-events-none"
+                >
+                  <div className="absolute top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_10px_white,0_0_20px_rgba(255,255,255,0.5)] border border-zinc-300" />
+                </motion.div>
+              )}
             </motion.div>
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-t-[30px] border-t-rose-500 z-10" />
+            
+            {/* Pointer (Gold) */}
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[25px] border-l-transparent border-r-[25px] border-r-transparent border-t-[50px] border-t-amber-500 z-10 drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+              <div className="absolute -top-12 left-[-10px] w-5 h-5 bg-amber-400 rounded-full blur-[2px] opacity-50" />
+            </div>
           </div>
 
           <AnimatePresence mode="wait">

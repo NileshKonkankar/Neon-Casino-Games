@@ -115,38 +115,57 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
     }
   }, [gameState, dealerHand, deck, playerHand, endGame]);
 
-  const renderCard = (card: Card, hidden = false) => (
-    <motion.div
-      initial={{ rotateY: 180, scale: 0.8, opacity: 0 }}
-      animate={{ rotateY: 0, scale: 1, opacity: 1 }}
-      className={`w-20 h-28 sm:w-24 sm:h-36 rounded-xl border-2 flex flex-col items-center justify-center relative shadow-xl ${
-        hidden ? 'bg-gradient-to-br from-emerald-600 to-teal-800 border-white/20' : 'bg-white border-white/10'
-      }`}
-    >
-      {!hidden ? (
-        <>
-          <div className={`absolute top-2 left-2 font-black text-lg ${['hearts', 'diamonds'].includes(card.suit) ? 'text-rose-500' : 'text-slate-900'}`}>
+  const renderCard = (card: Card, hidden = false, key: string) => (
+    <div key={key} className="relative w-20 h-28 sm:w-24 sm:h-36 preserve-3d group">
+      <motion.div
+        initial={false}
+        animate={{ rotateY: hidden ? 180 : 0 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        className="w-full h-full relative preserve-3d"
+      >
+        {/* Front of Card */}
+        <div className="absolute inset-0 backface-hidden bg-[#fdfdfd] rounded-xl border-2 border-zinc-300 flex flex-col items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
+          {/* Subtle Linen Texture */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/linen.png')]" />
+          {/* Lighting Highlight */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-black/5 pointer-events-none" />
+          
+          <div className={`absolute top-2 left-2 font-black text-lg leading-none ${['hearts', 'diamonds'].includes(card.suit) ? 'text-rose-600' : 'text-zinc-900'}`}>
             {card.value}
+            <div className="text-xs">{card.suit === 'hearts' && '♥'}{card.suit === 'diamonds' && '♦'}{card.suit === 'clubs' && '♣'}{card.suit === 'spades' && '♠'}</div>
           </div>
-          <div className={`text-4xl ${['hearts', 'diamonds'].includes(card.suit) ? 'text-rose-500' : 'text-slate-900'}`}>
+          
+          <div className={`text-5xl drop-shadow-sm ${['hearts', 'diamonds'].includes(card.suit) ? 'text-rose-600' : 'text-zinc-900'}`}>
             {card.suit === 'hearts' && '♥'}
             {card.suit === 'diamonds' && '♦'}
             {card.suit === 'clubs' && '♣'}
             {card.suit === 'spades' && '♠'}
           </div>
-          <div className={`absolute bottom-2 right-2 font-black text-lg rotate-180 ${['hearts', 'diamonds'].includes(card.suit) ? 'text-rose-500' : 'text-slate-900'}`}>
+
+          <div className={`absolute bottom-2 right-2 font-black text-lg leading-none rotate-180 ${['hearts', 'diamonds'].includes(card.suit) ? 'text-rose-600' : 'text-zinc-900'}`}>
             {card.value}
+            <div className="text-xs">{card.suit === 'hearts' && '♥'}{card.suit === 'diamonds' && '♦'}{card.suit === 'clubs' && '♣'}{card.suit === 'spades' && '♠'}</div>
           </div>
-        </>
-      ) : (
-        <div className="text-white/20 font-black text-4xl">?</div>
-      )}
-    </motion.div>
+        </div>
+
+        {/* Back of Card */}
+        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-[#1a1a1a] rounded-xl border-2 border-zinc-700 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
+          {/* Intricate Pattern */}
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-emerald-500" />
+          <div className="absolute inset-2 border border-emerald-500/30 rounded-lg flex items-center justify-center">
+            <div className="w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+            <div className="absolute text-emerald-500/40 font-black text-5xl italic tracking-tighter select-none">VAULT</div>
+          </div>
+          {/* Lighting Highlight */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
+        </div>
+      </motion.div>
+    </div>
   );
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col items-center justify-center max-w-5xl mx-auto w-full">
-      <div className="w-full bg-white/5 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col gap-12">
+    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col items-center justify-center max-w-5xl mx-auto w-full [perspective:2000px]">
+      <div className="w-full bg-white/5 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col gap-12 [transform:rotateX(15deg)]">
         <div className="absolute -top-24 -left-24 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full" />
         <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-teal-500/10 blur-[100px] rounded-full" />
 
@@ -154,7 +173,7 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
         <div className="flex flex-col items-center gap-4">
           <div className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Dealer's Hand</div>
           <div className="flex gap-4 min-h-[144px]">
-            {dealerHand.map((card, i) => renderCard(card, gameState === 'playing' && i === 1))}
+            {dealerHand.map((card, i) => renderCard(card, gameState === 'playing' && i === 1, `dealer-${i}-${card.suit}-${card.value}`))}
           </div>
           {gameState !== 'betting' && gameState !== 'playing' && (
             <div className="text-white font-black text-xl">Score: {calculateScore(dealerHand)}</div>
@@ -181,7 +200,7 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
         {/* Player Area */}
         <div className="flex flex-col items-center gap-4">
           <div className="flex gap-4 min-h-[144px]">
-            {playerHand.map((card) => renderCard(card))}
+            {playerHand.map((card, i) => renderCard(card, false, `player-${i}-${card.suit}-${card.value}`))}
           </div>
           {gameState !== 'betting' && (
             <div className="text-white font-black text-xl">Your Score: {calculateScore(playerHand)}</div>

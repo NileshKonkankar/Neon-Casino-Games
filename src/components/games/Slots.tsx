@@ -82,49 +82,63 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
   };
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col items-center justify-center">
+    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col items-center justify-center [perspective:2000px]">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-2xl bg-white/5 border border-white/10 rounded-[40px] p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+        initial={{ opacity: 0, scale: 0.9, rotateX: 20 }}
+        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+        className="w-full max-w-2xl bg-zinc-900 border-x-8 border-t-8 border-b-[20px] border-zinc-800 rounded-[60px] p-8 backdrop-blur-xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden [transform:rotateX(10deg)]"
       >
-        {/* Background Glow */}
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/20 blur-[100px] rounded-full" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-500/20 blur-[100px] rounded-full" />
+        {/* Machine Accents */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-4 bg-black/40" />
 
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-2">Neon <span className="text-purple-400">Slots</span></h2>
-          <p className="text-white/40 font-bold uppercase tracking-widest text-xs">Match 3 symbols to hit the jackpot</p>
+          <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-2 neon-glow text-purple-500">Neon <span className="text-white">Slots</span></h2>
+          <div className="inline-block px-4 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full">
+            <p className="text-purple-400 font-bold uppercase tracking-widest text-[10px]">High Stakes Virtual Machine</p>
+          </div>
         </div>
 
         {/* Reels Container */}
-        <div className="flex gap-4 mb-12 h-64">
+        <div className="flex gap-4 mb-12 h-80 bg-black/60 rounded-[40px] p-6 border-4 border-zinc-800 shadow-inner relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 pointer-events-none rounded-[36px]" />
+          
           {reels.map((symbol, i) => (
-            <div key={i} className="flex-1 bg-black/40 rounded-3xl border border-white/10 flex items-center justify-center relative overflow-hidden group">
-              <AnimatePresence mode="wait">
+            <div key={i} className="flex-1 bg-zinc-900/50 rounded-2xl relative overflow-hidden [perspective:500px]">
+              <motion.div
+                animate={spinningReels[i] ? {
+                  y: [0, -1000],
+                } : {
+                  y: 0
+                }}
+                transition={spinningReels[i] ? {
+                  repeat: Infinity,
+                  duration: 0.2,
+                  ease: "linear"
+                } : {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30
+                }}
+                className="flex flex-col items-center gap-8 py-4"
+              >
                 {spinningReels[i] ? (
-                  <motion.div
-                    key="spinning"
-                    initial={{ y: -100 }}
-                    animate={{ y: 100 }}
-                    transition={{ repeat: Infinity, duration: 0.1, ease: "linear" }}
-                    className="text-7xl opacity-20"
-                  >
-                    {SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]}
-                  </motion.div>
+                  // Show many symbols while spinning for motion blur feel
+                  Array.from({ length: 10 }).map((_, idx) => (
+                    <div key={idx} className="text-6xl filter blur-[2px] opacity-40">
+                      {SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]}
+                    </div>
+                  ))
                 ) : (
                   <motion.div
-                    key={symbol}
-                    initial={{ y: -50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: 50, opacity: 0 }}
-                    className="text-7xl drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]"
+                    initial={{ scale: 0.5, opacity: 0, rotateX: -45 }}
+                    animate={{ scale: 1, opacity: 1, rotateX: 0 }}
+                    className="text-8xl drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]"
                   >
                     {symbol}
                   </motion.div>
                 )}
-              </AnimatePresence>
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40 pointer-events-none" />
+              </motion.div>
             </div>
           ))}
         </div>

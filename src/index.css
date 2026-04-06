@@ -7,6 +7,7 @@
 @layer base {
   body {
     @apply bg-[#050505] text-white antialiased;
+    perspective: 1000px;
   }
 
   /* Custom Scrollbar */
@@ -23,6 +24,18 @@
   }
 }
 
+@utility preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@utility backface-hidden {
+  backface-visibility: hidden;
+}
+
+@utility rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
 @layer components {
   .neon-glow {
     text-shadow: 0 0 10px currentColor;
@@ -30,5 +43,15 @@
   
   .glass-panel {
     @apply bg-white/5 border border-white/10 backdrop-blur-xl;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .three-d-card {
+    transform-style: preserve-3d;
+    @apply transition-transform duration-500;
+  }
+
+  .three-d-card:hover {
+    transform: rotateX(10deg) rotateY(10deg);
   }
 }
