@@ -1,4 +1,4 @@
-export type GameType = 'slots' | 'blackjack' | 'roulette' | 'lobby';
+export type GameType = 'slots' | 'blackjack' | 'roulette' | 'lobby' | 'leaderboard';
 
 export interface GameState {
   balance: number;

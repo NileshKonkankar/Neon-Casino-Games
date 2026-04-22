@@ -59,23 +59,27 @@ export default function Lobby({ onSelectGame, balance }: LobbyProps) {
           <motion.button
             key={game.id}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ 
-              rotateX: 10, 
-              rotateY: 10,
-              z: 50,
-              scale: 1.05 
+            animate="rest"
+            whileHover="hover"
+            whileTap="tap"
+            variants={{
+              rest: { opacity: 1, scale: 1, y: 0, rotateX: 0, rotateY: 0, z: 0 },
+              hover: { rotateX: 10, rotateY: 10, z: 50, scale: 1.05 },
+              tap: { scale: 0.98 }
             }}
-            whileTap={{ scale: 0.98 }}
+            transition={{ delay: index * 0.1, duration: 0.4 }}
             onClick={() => onSelectGame(game.id)}
             className={`relative group h-96 rounded-3xl overflow-hidden bg-gradient-to-br ${game.color} p-1 ${game.shadow} shadow-2xl flex flex-col items-center justify-center text-center preserve-3d`}
           >
             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-0" />
             <div className="relative z-10 p-8 flex flex-col items-center preserve-3d">
               <motion.div 
-                whileHover={{ translateZ: 40 }}
-                className={`mb-6 ${game.accent} group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]`}
+                variants={{
+                  rest: { z: 0, scale: 1, rotate: 0 },
+                  hover: { z: 40, scale: 1.1, rotate: 360 }
+                }}
+                transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+                className={`mb-6 ${game.accent} drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]`}
               >
                 {game.icon}
               </motion.div>

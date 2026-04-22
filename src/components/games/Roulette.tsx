@@ -16,15 +16,17 @@ const RED_NUMBERS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 
 export default function Roulette({ balance, onUpdateBalance }: RouletteProps) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedBet, setSelectedBet] = useState<BetType | null>(null);
-  const [betAmount, setBetAmount] = useState(10);
+  const [betAmount, setBetAmount] = useState<number | ''>(10);
   const [winningNumber, setWinningNumber] = useState<number | null>(null);
   const [lastWin, setLastWin] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
 
-  const spin = () => {
-    if (balance < betAmount || !selectedBet || isSpinning) return;
+  const currentBetAmount = typeof betAmount === 'number' ? betAmount : 0;
 
-    onUpdateBalance(-betAmount);
+  const spin = () => {
+    if (balance < currentBetAmount || !selectedBet || isSpinning || currentBetAmount <= 0) return;
+
+    onUpdateBalance(-currentBetAmount);
     setIsSpinning(true);
     setWinningNumber(null);
     setLastWin(null);
@@ -48,15 +50,15 @@ export default function Roulette({ balance, onUpdateBalance }: RouletteProps) {
     const isBlack = num !== 0 && !isRed;
 
     if (typeof selectedBet === 'number') {
-      if (selectedBet === num) win = betAmount * 35;
+      if (selectedBet === num) win = currentBetAmount * 35;
     } else if (selectedBet === 'red' && isRed) {
-      win = betAmount * 2;
+      win = currentBetAmount * 2;
     } else if (selectedBet === 'black' && isBlack) {
-      win = betAmount * 2;
+      win = currentBetAmount * 2;
     } else if (selectedBet === 'even' && num !== 0 && num % 2 === 0) {
-      win = betAmount * 2;
+      win = currentBetAmount * 2;
     } else if (selectedBet === 'odd' && num % 2 !== 0) {
-      win = betAmount * 2;
+      win = currentBetAmount * 2;
     }
 
     if (win > 0) {
@@ -185,6 +187,18 @@ export default function Roulette({ balance, onUpdateBalance }: RouletteProps) {
             <div className="flex items-center justify-between">
               <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Bet Amount</span>
               <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  value={betAmount}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '') setBetAmount('');
+                    else setBetAmount(Math.max(1, parseInt(val) || 0));
+                  }}
+                  className="w-20 px-3 py-1.5 bg-black/40 border border-white/10 rounded-lg text-white text-xs font-bold outline-none focus:border-rose-500 transition-colors"
+                  placeholder="Custom"
+                />
                 {[10, 50, 100].map((amount) => (
                   <button
                     key={amount}
@@ -217,9 +231,9 @@ export default function Roulette({ balance, onUpdateBalance }: RouletteProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={spin}
-                disabled={isSpinning || !selectedBet || balance < betAmount}
+                disabled={isSpinning || !selectedBet || balance < currentBetAmount || currentBetAmount <= 0}
                 className={`h-16 flex-1 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
-                  isSpinning || !selectedBet || balance < betAmount
+                  isSpinning || !selectedBet || balance < currentBetAmount || currentBetAmount <= 0
                   ? 'bg-white/5 text-white/20 cursor-not-allowed'
                   : 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_0_30px_rgba(244,63,94,0.3)] hover:shadow-[0_0_40px_rgba(244,63,94,0.5)]'
                 }`}

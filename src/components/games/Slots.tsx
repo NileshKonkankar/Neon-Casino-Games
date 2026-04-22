@@ -22,14 +22,16 @@ const PAYOUTS: Record<string, number> = {
 export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
   const [reels, setReels] = useState(['7️⃣', '7️⃣', '7️⃣']);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [bet, setBet] = useState(10);
+  const [bet, setBet] = useState<number | ''>(10);
   const [lastWin, setLastWin] = useState<number | null>(null);
   const [spinningReels, setSpinningReels] = useState([false, false, false]);
 
-  const spin = () => {
-    if (balance < bet || isSpinning) return;
+  const currentBet = typeof bet === 'number' ? bet : 0;
 
-    onUpdateBalance(-bet);
+  const spin = () => {
+    if (balance < currentBet || isSpinning || currentBet <= 0) return;
+
+    onUpdateBalance(-currentBet);
     setIsSpinning(true);
     setLastWin(null);
     setSpinningReels([true, true, true]);
@@ -65,7 +67,7 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
   const checkWin = () => {
     if (reels[0] === reels[1] && reels[1] === reels[2]) {
       const multiplier = PAYOUTS[reels[0]];
-      const winAmount = bet * multiplier;
+      const winAmount = currentBet * multiplier;
       onUpdateBalance(winAmount);
       setLastWin(winAmount);
       confetti({
@@ -75,7 +77,7 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
         colors: ['#fbbf24', '#ffffff', '#f59e0b']
       });
     } else if (reels[0] === reels[1] || reels[1] === reels[2] || reels[0] === reels[2]) {
-      const winAmount = Math.floor(bet * 1.5);
+      const winAmount = Math.floor(currentBet * 1.5);
       onUpdateBalance(winAmount);
       setLastWin(winAmount);
     }
@@ -148,6 +150,18 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
           <div className="flex flex-col gap-2">
             <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Current Bet</span>
             <div className="flex items-center gap-4">
+              <input
+                type="number"
+                min="1"
+                value={bet}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '') setBet('');
+                  else setBet(Math.max(1, parseInt(val) || 0));
+                }}
+                className="w-24 px-4 py-2 bg-black/40 border border-white/10 rounded-xl text-white font-bold outline-none focus:border-purple-500 transition-colors"
+                placeholder="Custom"
+              />
               {[10, 50, 100].map((amount) => (
                 <button
                   key={amount}
@@ -183,9 +197,9 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={spin}
-              disabled={isSpinning || balance < bet}
+              disabled={isSpinning || balance < currentBet || currentBet <= 0}
               className={`h-16 px-12 rounded-2xl font-black uppercase tracking-widest flex items-center gap-3 transition-all ${
-                isSpinning || balance < bet
+                isSpinning || balance < currentBet || currentBet <= 0
                 ? 'bg-white/5 text-white/20 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:shadow-[0_0_40px_rgba(168,85,247,0.5)]'
               }`}

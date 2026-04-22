@@ -40,13 +40,15 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);
   const [gameState, setGameState] = useState<'betting' | 'playing' | 'dealerTurn' | 'gameOver'>('betting');
-  const [bet, setBet] = useState(10);
+  const [bet, setBet] = useState<number | ''>(10);
   const [message, setMessage] = useState('');
   const [winAmount, setWinAmount] = useState<number | null>(null);
 
+  const currentBet = typeof bet === 'number' ? bet : 0;
+
   const startGame = () => {
-    if (balance < bet) return;
-    onUpdateBalance(-bet);
+    if (balance < currentBet || currentBet <= 0) return;
+    onUpdateBalance(-currentBet);
     const newDeck = createDeck();
     const pHand = [newDeck.pop()!, newDeck.pop()!];
     const dHand = [newDeck.pop()!, newDeck.pop()!];
@@ -80,7 +82,7 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
     setGameState('gameOver');
     setMessage(msg);
     if (result === 'win') {
-      const win = bet * 2;
+      const win = currentBet * 2;
       onUpdateBalance(win);
       setWinAmount(win);
       confetti({
@@ -90,10 +92,10 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
         colors: ['#10b981', '#ffffff']
       });
     } else if (result === 'push') {
-      onUpdateBalance(bet);
-      setWinAmount(bet);
+      onUpdateBalance(currentBet);
+      setWinAmount(currentBet);
     }
-  }, [bet, onUpdateBalance]);
+  }, [currentBet, onUpdateBalance]);
 
   useEffect(() => {
     if (gameState === 'dealerTurn') {
@@ -115,12 +117,30 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
     }
   }, [gameState, dealerHand, deck, playerHand, endGame]);
 
-  const renderCard = (card: Card, hidden = false, key: string) => (
-    <div key={key} className="relative w-20 h-28 sm:w-24 sm:h-36 preserve-3d group">
+  const renderCard = (card: Card, hidden = false, key: string, index: number, isDealer: boolean) => (
+    <motion.div 
+      key={key} 
+      layout
+      initial={{ x: isDealer ? 0 : 200, y: isDealer ? -200 : -300, opacity: 0, rotateZ: 30 }}
+      animate={{ x: 0, y: 0, opacity: 1, rotateZ: 0 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 260, 
+        damping: 25,
+        delay: index * 0.15
+      }}
+      className="relative w-20 h-28 sm:w-24 sm:h-36 preserve-3d group"
+    >
       <motion.div
         initial={false}
         animate={{ rotateY: hidden ? 180 : 0 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+        transition={{ 
+          duration: 0.6, 
+          type: "spring", 
+          stiffness: 260, 
+          damping: 20,
+          delay: (!hidden && isDealer && index === 1) ? 0.3 : 0 // Delay the reveal of hole card slightly
+        }}
         className="w-full h-full relative preserve-3d"
       >
         {/* Front of Card */}
@@ -160,7 +180,7 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
           <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none" />
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 
   return (
@@ -172,8 +192,10 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
         {/* Dealer Area */}
         <div className="flex flex-col items-center gap-4">
           <div className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Dealer's Hand</div>
-          <div className="flex gap-4 min-h-[144px]">
-            {dealerHand.map((card, i) => renderCard(card, gameState === 'playing' && i === 1, `dealer-${i}-${card.suit}-${card.value}`))}
+          <div className="flex justify-center gap-4 min-h-[144px]">
+            <AnimatePresence mode="popLayout">
+              {dealerHand.map((card, i) => renderCard(card, gameState === 'playing' && i === 1, `dealer-${i}-${card.suit}-${card.value}`, i, true))}
+            </AnimatePresence>
           </div>
           {gameState !== 'betting' && gameState !== 'playing' && (
             <div className="text-white font-black text-xl">Score: {calculateScore(dealerHand)}</div>
@@ -199,8 +221,10 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
 
         {/* Player Area */}
         <div className="flex flex-col items-center gap-4">
-          <div className="flex gap-4 min-h-[144px]">
-            {playerHand.map((card, i) => renderCard(card, false, `player-${i}-${card.suit}-${card.value}`))}
+          <div className="flex justify-center gap-4 min-h-[144px]">
+            <AnimatePresence mode="popLayout">
+              {playerHand.map((card, i) => renderCard(card, false, `player-${i}-${card.suit}-${card.value}`, i, false))}
+            </AnimatePresence>
           </div>
           {gameState !== 'betting' && (
             <div className="text-white font-black text-xl">Your Score: {calculateScore(playerHand)}</div>
@@ -215,6 +239,18 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
               <div className="flex flex-col gap-2">
                 <span className="text-white/40 text-[10px] font-black uppercase tracking-[0.2em]">Current Bet</span>
                 <div className="flex items-center gap-4">
+                  <input
+                    type="number"
+                    min="1"
+                    value={bet}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '') setBet('');
+                      else setBet(Math.max(1, parseInt(val) || 0));
+                    }}
+                    className="w-24 px-4 py-2 bg-black/40 border border-white/10 rounded-xl text-white font-bold outline-none focus:border-emerald-500 transition-colors"
+                    placeholder="Custom"
+                  />
                   {[10, 50, 100].map((amount) => (
                     <button
                       key={amount}
@@ -234,9 +270,9 @@ export default function Blackjack({ balance, onUpdateBalance }: BlackjackProps) 
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={startGame}
-                disabled={balance < bet}
+                disabled={balance < currentBet || currentBet <= 0}
                 className={`h-16 px-12 rounded-2xl font-black uppercase tracking-widest flex items-center gap-3 transition-all ${
-                  balance < bet
+                  balance < currentBet || currentBet <= 0
                   ? 'bg-white/5 text-white/20 cursor-not-allowed'
                   : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]'
                 }`}

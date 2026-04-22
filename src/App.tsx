@@ -7,6 +7,7 @@ import Lobby from './components/Lobby';
 import Slots from './components/games/Slots';
 import Blackjack from './components/games/Blackjack';
 import Roulette from './components/games/Roulette';
+import Leaderboard from './components/Leaderboard';
 import { Gift, X } from 'lucide-react';
 
 export default function App() {
@@ -31,6 +32,8 @@ export default function App() {
         return <Blackjack balance={balance} onUpdateBalance={updateBalance} />;
       case 'roulette':
         return <Roulette balance={balance} onUpdateBalance={updateBalance} />;
+      case 'leaderboard':
+        return <Leaderboard currentBalance={balance} />;
       default:
         return <Lobby onSelectGame={setActiveGame} balance={balance} />;
     }
@@ -40,8 +43,8 @@ export default function App() {
     <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-400 selection:text-black">
       <Header 
         balance={balance} 
-        onBackToLobby={() => setActiveGame('lobby')} 
-        isLobby={activeGame === 'lobby'} 
+        onNavigate={(page) => setActiveGame(page as GameType)} 
+        currentPage={activeGame} 
       />
 
       <main className="relative z-0">
