@@ -2,43 +2,46 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { GameType } from '../types';
 import { Dices, Spade, Disc } from 'lucide-react';
+import { useTheme } from '../App';
 
 interface LobbyProps {
   onSelectGame: (game: GameType) => void;
   balance: number;
 }
 
-const GAMES = [
-  {
-    id: 'slots' as GameType,
-    name: 'Neon Slots',
-    description: 'Classic 3-reel high stakes slot machine.',
-    icon: <Dices className="w-12 h-12" />,
-    color: 'from-purple-500 to-indigo-600',
-    accent: 'text-purple-300',
-    shadow: 'shadow-purple-500/20'
-  },
-  {
-    id: 'blackjack' as GameType,
-    name: 'Vault Blackjack',
-    description: 'Beat the dealer in this classic card game.',
-    icon: <Spade className="w-12 h-12" />,
-    color: 'from-emerald-500 to-teal-600',
-    accent: 'text-emerald-300',
-    shadow: 'shadow-emerald-500/20'
-  },
-  {
-    id: 'roulette' as GameType,
-    name: 'Cyber Roulette',
-    description: 'Spin the wheel and test your luck.',
-    icon: <Disc className="w-12 h-12" />,
-    color: 'from-rose-500 to-pink-600',
-    accent: 'text-rose-300',
-    shadow: 'shadow-rose-500/20'
-  }
-];
-
 export default function Lobby({ onSelectGame, balance }: LobbyProps) {
+  const { theme } = useTheme();
+
+  const GAMES = [
+    {
+      id: 'slots' as GameType,
+      name: 'Neon Slots',
+      description: 'Classic 3-reel high stakes slot machine.',
+      icon: <Dices className="w-12 h-12" />,
+      color: theme === 'cyberpunk' ? 'from-cyan-500 to-blue-600' : theme === 'retro' ? 'from-pink-500 to-rose-600' : 'from-purple-500 to-indigo-600',
+      accent: theme === 'cyberpunk' ? 'text-cyan-300' : theme === 'retro' ? 'text-pink-300' : 'text-purple-300',
+      shadow: theme === 'cyberpunk' ? 'shadow-cyan-500/20' : theme === 'retro' ? 'shadow-pink-500/20' : 'shadow-purple-500/20'
+    },
+    {
+      id: 'blackjack' as GameType,
+      name: 'Vault Blackjack',
+      description: 'Beat the dealer in this classic card game.',
+      icon: <Spade className="w-12 h-12" />,
+      color: theme === 'cyberpunk' ? 'from-fuchsia-500 to-purple-600' : theme === 'retro' ? 'from-violet-500 to-purple-600' : 'from-emerald-500 to-teal-600',
+      accent: theme === 'cyberpunk' ? 'text-fuchsia-300' : theme === 'retro' ? 'text-violet-300' : 'text-emerald-300',
+      shadow: theme === 'cyberpunk' ? 'shadow-fuchsia-500/20' : theme === 'retro' ? 'shadow-violet-500/20' : 'shadow-emerald-500/20'
+    },
+    {
+      id: 'roulette' as GameType,
+      name: 'Cyber Roulette',
+      description: 'Spin the wheel and test your luck.',
+      icon: <Disc className="w-12 h-12" />,
+      color: theme === 'cyberpunk' ? 'from-blue-500 to-indigo-600' : theme === 'retro' ? 'from-fuchsia-500 to-pink-600' : 'from-rose-500 to-pink-600',
+      accent: theme === 'cyberpunk' ? 'text-blue-300' : theme === 'retro' ? 'text-fuchsia-300' : 'text-rose-300',
+      shadow: theme === 'cyberpunk' ? 'shadow-blue-500/20' : theme === 'retro' ? 'shadow-fuchsia-500/20' : 'shadow-rose-500/20'
+    }
+  ];
+
   return (
     <div className="min-h-screen pt-24 pb-12 px-6 max-w-7xl mx-auto flex flex-col items-center">
       <motion.div 

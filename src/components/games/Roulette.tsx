@@ -83,45 +83,58 @@ export default function Roulette({ balance, onUpdateBalance }: RouletteProps) {
         <div className="flex-1 flex flex-col items-center gap-8 [perspective:1000px]">
           <div className="relative w-64 h-64 sm:w-96 sm:h-96 [transform:rotateX(45deg)]">
             {/* Outer Wood Ring */}
-            <div className="absolute inset-[-20px] rounded-full border-[24px] border-[#3d2b1f] shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-90" />
-            
-            <motion.div
-              animate={{ rotate: rotation }}
-              transition={{ duration: 4, ease: [0.1, 0, 0.1, 1] }}
-              className="w-full h-full rounded-full border-[12px] border-zinc-800 relative overflow-hidden bg-zinc-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] preserve-3d"
+            <motion.div 
+              animate={{ rotateX: isSpinning ? [0, 2, -2, 0] : 0, rotateY: isSpinning ? [0, -2, 2, 0] : 0 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              className="absolute inset-[-20px] rounded-full border-[24px] border-[#3d2b1f] shadow-[0_20px_50px_rgba(0,0,0,0.8)] bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')] opacity-90 preserve-3d"
             >
-              {/* Inner Metallic Ring */}
-              <div className="absolute inset-0 rounded-full border-[20px] border-amber-600/10" />
-              
-              {NUMBERS.map((n) => (
-                <div
-                  key={n}
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-full origin-bottom flex flex-col items-center pt-2"
-                  style={{ transform: `translateX(-50%) rotate(${n * (360 / 37)}deg)` }}
-                >
-                  <div className={`text-xs font-black px-1 rounded-sm shadow-sm ${n === 0 ? 'bg-emerald-600 text-white' : RED_NUMBERS.includes(n) ? 'bg-rose-600 text-white' : 'bg-zinc-800 text-white'}`}>
-                    {n}
+              <motion.div
+                animate={{ rotate: rotation }}
+                transition={{ duration: 4, ease: [0.2, 0, 0.1, 1] }}
+                className="w-full h-full rounded-full border-[12px] border-zinc-800 relative overflow-hidden bg-zinc-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] preserve-3d"
+              >
+                {/* Inner Metallic Ring */}
+                <div className="absolute inset-0 rounded-full border-[20px] border-amber-600/10" />
+                
+                {NUMBERS.map((n) => (
+                  <div
+                    key={n}
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-full origin-bottom flex flex-col items-center pt-2"
+                    style={{ transform: `translateX(-50%) rotate(${n * (360 / 37)}deg)` }}
+                  >
+                    <div className={`text-xs font-black px-1 rounded-sm shadow-sm ${n === 0 ? 'bg-emerald-600 text-white' : RED_NUMBERS.includes(n) ? 'bg-rose-600 text-white' : 'bg-zinc-800 text-white'}`}>
+                      {n}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Center Hub (Metallic) */}
+                <div className="absolute inset-12 rounded-full border-8 border-zinc-700 bg-gradient-to-br from-zinc-400 via-zinc-800 to-zinc-900 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.5)] border-2 border-white/20 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full opacity-50" />
                   </div>
                 </div>
-              ))}
-              
-              {/* Center Hub (Metallic) */}
-              <div className="absolute inset-12 rounded-full border-8 border-zinc-700 bg-gradient-to-br from-zinc-400 via-zinc-800 to-zinc-900 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-200 via-amber-500 to-amber-800 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.5)] border-2 border-white/20 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full opacity-50" />
-                </div>
-              </div>
 
-              {/* Ball Animation */}
-              {isSpinning && (
-                <motion.div
-                  animate={{ rotate: -rotation * 2 }}
-                  transition={{ duration: 4, ease: [0.1, 0, 0.1, 1] }}
-                  className="absolute inset-0 pointer-events-none"
-                >
-                  <div className="absolute top-8 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_10px_white,0_0_20px_rgba(255,255,255,0.5)] border border-zinc-300" />
-                </motion.div>
-              )}
+                {/* Ball Animation */}
+                {isSpinning && (
+                  <motion.div
+                    animate={{ rotate: -rotation * 2.5 }}
+                    transition={{ duration: 4, ease: [0.1, 0, 0.2, 1] }} // Slightly different ease to create bounce effect conceptually
+                    className="absolute inset-0 pointer-events-none"
+                  >
+                    <motion.div 
+                      key="ball"
+                      animate={{ 
+                        scale: [1, 1.2, 0.9, 1.1, 1], // Bouncing feeling
+                        opacity: [1, 0.8, 1, 0.9, 1],
+                        y: [-2, 2, -1, 1, 0] // Inner bouncing
+                      }}
+                      transition={{ duration: 3.5, ease: "easeOut" }}
+                      className="absolute top-[32px] left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow-[0_0_10px_white,0_0_20px_rgba(255,255,255,0.5)] border border-zinc-300" 
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
             </motion.div>
             
             {/* Pointer (Gold) */}

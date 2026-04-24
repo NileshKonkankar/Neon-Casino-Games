@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useBalance } from './hooks/useBalance';
-import { GameType } from './types';
+import { GameType, ThemeType } from './types';
 import Header from './components/Header';
 import Lobby from './components/Lobby';
 import Slots from './components/games/Slots';
@@ -10,11 +10,21 @@ import Roulette from './components/games/Roulette';
 import Leaderboard from './components/Leaderboard';
 import { Gift, X } from 'lucide-react';
 
+export const ThemeContext = createContext<{
+  theme: ThemeType;
+  setTheme: (theme: ThemeType) => void;
+}>({ theme: 'neon', setTheme: () => {} });
+
+export function useTheme() {
+  return useContext(ThemeContext);
+}
+
 export default function App() {
   const { balance, updateBalance, claimDailyReward } = useBalance();
   const [activeGame, setActiveGame] = useState<GameType>('lobby');
   const [showReward, setShowReward] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
+  const [theme, setTheme] = useState<ThemeType>('neon');
 
   useEffect(() => {
     const reward = claimDailyReward();
@@ -40,14 +50,19 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-400 selection:text-black">
-      <Header 
-        balance={balance} 
-        onNavigate={(page) => setActiveGame(page as GameType)} 
-        currentPage={activeGame} 
-      />
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <div className={`min-h-screen ${
+        theme === 'cyberpunk' ? 'bg-[#000a0b]' : 
+        theme === 'retro' ? 'bg-[#1a0f2e]' : 
+        'bg-[#050505]'
+      } text-white font-sans selection:bg-amber-400 selection:text-black transition-colors duration-1000`}>
+        <Header 
+          balance={balance} 
+          onNavigate={(page) => setActiveGame(page as GameType)} 
+          currentPage={activeGame} 
+        />
 
-      <main className="relative z-0">
+        <main className="relative z-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeGame}
@@ -100,10 +115,19 @@ export default function App() {
       </AnimatePresence>
 
       {/* Background Elements */}
-      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/5 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
+      <div className="fixed inset-0 pointer-events-none z-[-1] overflow-hidden transition-colors duration-1000 delay-1000">
+        <div className={`absolute top-[-10%] left-[-10%] w-[40%] h-[40%] ${
+          theme === 'cyberpunk' ? 'bg-cyan-500/10' : 
+          theme === 'retro' ? 'bg-pink-500/10' : 
+          'bg-amber-500/5'
+        } blur-[120px] rounded-full transition-colors duration-1000`} />
+        <div className={`absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] ${
+           theme === 'cyberpunk' ? 'bg-fuchsia-500/10' : 
+           theme === 'retro' ? 'bg-violet-500/10' : 
+           'bg-purple-500/5'
+        } blur-[120px] rounded-full transition-colors duration-1000`} />
       </div>
     </div>
+    </ThemeContext.Provider>
   );
 }

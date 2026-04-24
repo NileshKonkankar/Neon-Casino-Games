@@ -1,5 +1,7 @@
 export type GameType = 'slots' | 'blackjack' | 'roulette' | 'lobby' | 'leaderboard';
 
+export type ThemeType = 'neon' | 'cyberpunk' | 'retro';
+
 export interface GameState {
   balance: number;
   activeGame: GameType;
