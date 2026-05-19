@@ -25,8 +25,28 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
   const [bet, setBet] = useState<number | ''>(10);
   const [lastWin, setLastWin] = useState<number | null>(null);
   const [spinningReels, setSpinningReels] = useState([false, false, false]);
+  const [winningIndices, setWinningIndices] = useState<number[]>([]);
+  
+  const winAudio = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    winAudio.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+    return () => {
+      if (winAudio.current) {
+        winAudio.current.pause();
+        winAudio.current = null;
+      }
+    };
+  }, []);
 
   const currentBet = typeof bet === 'number' ? bet : 0;
+
+  const playWinSound = () => {
+    if (winAudio.current) {
+      winAudio.current.currentTime = 0;
+      winAudio.current.play().catch(e => console.log('Audio play blocked', e));
+    }
+  };
 
   const spin = () => {
     if (balance < currentBet || isSpinning || currentBet <= 0) return;
@@ -34,6 +54,7 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
     onUpdateBalance(-currentBet);
     setIsSpinning(true);
     setLastWin(null);
+    setWinningIndices([]);
     setSpinningReels([true, true, true]);
 
     // Staggered reel stops
@@ -70,6 +91,8 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
       const winAmount = currentBet * multiplier;
       onUpdateBalance(winAmount);
       setLastWin(winAmount);
+      setWinningIndices([0, 1, 2]);
+      playWinSound();
       confetti({
         particleCount: 150,
         spread: 70,
@@ -80,6 +103,14 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
       const winAmount = Math.floor(currentBet * 1.5);
       onUpdateBalance(winAmount);
       setLastWin(winAmount);
+      
+      const indices: number[] = [];
+      if (reels[0] === reels[1]) indices.push(0, 1);
+      else if (reels[1] === reels[2]) indices.push(1, 2);
+      else if (reels[0] === reels[2]) indices.push(0, 2);
+      
+      setWinningIndices(indices);
+      playWinSound();
     }
   };
 
@@ -106,7 +137,20 @@ export default function Slots({ balance, onUpdateBalance }: SlotsProps) {
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10 pointer-events-none rounded-[36px]" />
           
           {reels.map((symbol, i) => (
-            <div key={i} className="flex-1 bg-zinc-900/50 rounded-2xl relative overflow-hidden [perspective:500px]">
+            <div key={i} className={`flex-1 bg-zinc-900/50 rounded-2xl relative overflow-hidden [perspective:500px] transition-all duration-500 ${
+              winningIndices.includes(i) ? 'ring-4 ring-amber-500/50 bg-amber-500/5 shadow-[0_0_40px_rgba(251,191,36,0.3)]' : 'border border-white/5'
+            }`}>
+              <AnimatePresence>
+                {winningIndices.includes(i) && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.2, 0.5, 0.2] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                    className="absolute inset-0 bg-amber-500/20 z-0"
+                  />
+                )}
+              </AnimatePresence>
+
               <motion.div
                 animate={spinningReels[i] ? {
                   y: [0, -1000],
